@@ -8,7 +8,7 @@ client = MongoClient('mongodb+srv://team24:2424@cluster0.ypbmrjf.mongodb.net/Clu
 db = client.dbsparta
 
 app = Flask(__name__)
-app.config['JSON_AS_ASCII'] = False
+app.config['JSON_AS_ASCII'] = False # UTF-인코딩
 
 @app.route('/')
 def home():
@@ -52,10 +52,12 @@ def link_post():
 # 링크 수정 update
 @app.route("/api/link/<int:id>", methods=["PUT"])
 def link_put(id):
+    # id가 유효한지 확인
     exist = db.links.find({'id': int(id)}, {'_id': False})
-    print(exist)
+    # 유효하지 않는 경우
     if len(list(exist)) == 0 :
         return jsonify({'msg': '존재하지 않는 링크 ID입니다. 다시 확인해주세요.'}), 404
+    # id가 유효한 경우
     else:
         title = request.form['title']
         url = request.form['url']
@@ -80,13 +82,14 @@ def link_put(id):
 
 # 파일 업로드
 def save_file(image):
-    # 파일 확장자
+    # 파일 확장자 분리
     extension = image.filename.split('.')[-1]
-
+    # 파일 이름 형식
     today = datetime.now()
     mytime = today.strftime('%Y-%m-%d-%H-%M-%S')
     filename = f'file-{mytime}'
     save_to = f'static/img/{filename}.{extension}'
+    # 파일 로컬 static/img 디렉토리 저장
     image.save(save_to)
 
     file_fullname = f'{filename}.{extension}'
@@ -96,9 +99,12 @@ def save_file(image):
 # 링크 삭제 delete
 @app.route("/api/link/<int:id>", methods=["DELETE"])
 def link_delete(id):
+    # id가 유효한지 확인
     exist_id = db.links.find({'id': id}, {'_id': False})
+    # 유효하지 않는 경우
     if len(list(exist_id)) == 0:
         return jsonify({'msg': '존재하지 않은 링크 ID입니다. 다시 확인해주세요.'}), 404
+    # id가 유효한 경우
     db.links.delete_one({'id': id})
 
     return jsonify({'msg': '링크 삭제 완료!'}), 200
