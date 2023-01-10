@@ -41,7 +41,7 @@ def link_post():
         'author': author,
         'image': image
     }
-
+    
     db.links.insert_one(doc)
     return jsonify({'msg': '링크 등록 완료!'})
 
