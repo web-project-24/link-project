@@ -15,7 +15,7 @@ def home():
 
 
 # 링크 전체 조회
-@app.route("/api/link<int:id>", methods=["GET"])
+@app.route("/api/link", methods=["GET"])
 def link_list_get():
     _linklist = list(db.links.find({}, {'_id': False}))
 
@@ -41,7 +41,7 @@ def link_post():
         'author': author,
         'image': image
     }
-
+    print
     db.links.insert_one(doc)
     return jsonify({'msg': '링크 등록 완료!'})
 
@@ -56,6 +56,7 @@ def link_put(id):
         {'author': author},
         {'image': image}
     )
+
     return jsonify({'msg': '링크 수정 완료!', 'path': id})
 
 
