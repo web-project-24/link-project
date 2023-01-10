@@ -13,31 +13,50 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
-# 링크 전체 조회
+# 링크 전체 조회 read
 @app.route("/api/link", methods=["GET"])
 def link_list_get():
-    _linklist = request.args.get('link')
+    _linklist = list(db.links.find({}, {'_id': False}))
 
     return jsonify({'linklist': _linklist})
 
-# 링크 생성
+# 링크 생성 create
 @app.route("/api/link", methods=["POST"])
 def link_post():
-    _title = request.form['title']
+    # id 값 만들기
+    all_list = [] # db.<collection이름>.find()로 전체 데이터 가져오기
+    id = len(all_list) + 1
+
+    title = request.form['title']
+    url = request.form['url']
+    tag = request.form['tag']
+    author = request.form['author']
+    image = request.form['image']
+
+    doc = {
+        'id': id,
+        'title': title,
+        'url': url,
+        'tag': tag,
+        'author': author,
+        'image': image
+    }
+    db.links.insert_one(doc)
 
     return jsonify({'msg': '링크 등록 완료!'})
 
-# 링크 수정
+# 링크 수정 update
 @app.route("/api/link/<int:id>", methods=["PUT"])
 def link_put(id):
     _title = request.form['title']
+    print(_title)
 
     return jsonify({'msg': '링크 수정 완료!', 'path': id})
 
-# 링크 삭제
+# 링크 삭제 delete
 @app.route("/api/link/<int:id>", methods=["DELETE"])
 def link_delete(id):
-
+    print(id)
 
     return jsonify({'msg': '링크 삭제 완료!', 'path': id})
 
