@@ -57,7 +57,7 @@ def link_put(id):
     image = request.form['image']
 
     new_doc = {
-        'id': 'id',
+        'id': id,
         'title': title,
         'url': url,
         'tag': tag,
@@ -65,7 +65,7 @@ def link_put(id):
         'image': image
     }
 
-    db.links.update_one({'id':int(id)},{'$set': new_doc)
+    db.links.update_one({'id':int(id)},{'$set': new_doc})
 
     return jsonify({'msg': '링크 수정 완료!', 'path': id})
 
