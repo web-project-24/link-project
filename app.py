@@ -25,13 +25,14 @@ def link_list_get():
 # 링크 생성
 @app.route("/api/link", methods=["POST"])
 def link_post():
-
-    id = request.form['id']
     title = request.form['title']
     url = request.form['url']
     tag = request.form['tag']
     author = request.form['author']
     image = request.form['image']
+
+    count = list(db.links.find({}, {'_id': False}))
+    id = len(count) + 1
 
     doc = {
         'id': id,
@@ -41,21 +42,30 @@ def link_post():
         'author': author,
         'image': image
     }
-    print
+
     db.links.insert_one(doc)
     return jsonify({'msg': '링크 등록 완료!'})
 
 # 링크 수정
 @app.route("/api/link/<int:id>", methods=["PUT"])
 def link_put(id):
-    db.links.update_one(
-        {'id': id},
-        {'title': title},
-        {'$set': {'url': url_receive}},
-        {'tag': tag},
-        {'author': author},
-        {'image': image}
-    )
+
+    title = request.form['title']
+    url = request.form['url']
+    tag = request.form['tag']
+    author = request.form['author']
+    image = request.form['image']
+
+    new_doc = {
+        'id': 'id',
+        'title': title,
+        'url': url,
+        'tag': tag,
+        'author': author,
+        'image': image
+    }
+
+    db.links.update_one({'id':int(id)},{'$set': new_doc)
 
     return jsonify({'msg': '링크 수정 완료!', 'path': id})
 
