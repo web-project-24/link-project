@@ -13,42 +13,6 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
-#업로드
-@app.route('/diary', methods=['POST'])
-def save_diary():
-
-    post_list = list(db.links.find({}, {'_id': False}))
-    id = len(post_list) + 1
-    title = request.form['title']
-    url = request.form['url']
-    tag = request.form['tag']
-    author = request.form['author']
-    # 파일 저장을 위한 부분
-    image = request.files["file"]
-
-    # 파일 확장자
-    extension = image.filename.split('.')[-1]
-
-    today = datetime.now()
-    mytime = today.strftime('%Y-%m-%d-%H-%M-%S')
-
-    filename = f'file-{mytime}'
-
-    save_to = f'static/{filename}.{extension}'
-    image.save(save_to)
-
-    doc = {
-        'id': id,
-        'title': title,
-        'url': url,
-        'tag': tag,
-        'author': author,
-        'image': image,
-    }
-
-    db.links.insert_one(doc)
-    return jsonify({'msg': '저장 완료!'})
-
 # 링크 전체 조회
 @app.route("/api/link", methods=["GET"])
 def link_list_get():
@@ -67,7 +31,16 @@ def link_post():
     url = request.form['url']
     tag = request.form['tag']
     author = request.form['author']
-    image = request.form['image']
+    # 파일 저장을 위한 부분
+    image = request.files['image']
+    # 파일 확장자
+    extension = image.filename.split('.')[-1]
+
+    today = datetime.now()
+    mytime = today.strftime('%Y-%m-%d-%H-%M-%S')
+    filename = f'file-{mytime}'
+    save_to = f'static/{filename}.{extension}'
+    image.save(save_to)
 
     doc = {
         'id': id,
@@ -80,6 +53,7 @@ def link_post():
     db.links.insert_one(doc)
 
     return jsonify({'msg': '링크 등록 완료!'})
+
 
 # 링크 수정 update
 @app.route("/api/link/<int:id>", methods=["PUT"])
