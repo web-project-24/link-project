@@ -15,104 +15,63 @@
     <title>프로젝트 이름</title>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Square+Peg&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../static/styles.css">
-    <script>
-        $(document).ready(function () {
-            var fileTarget = $('.filebox .upload-hidden');
-
-            fileTarget.on('change', function () {  // 값이 변경되면
-                if (window.FileReader) {  // modern browser
-                    var filename = $(this)[0].files[0].name;
-                } else {  // old IE
-                    var filename = $(this).val().split('/').pop().split('\\').pop();  // 파일명만 추출
-                }
-
-                // 추출한 파일명 삽입
-                $(this).siblings('.upload-name').val(filename);
-            });
-
-            //#btn toggle
-            let i = 0;
-            $("#btn").on("click", function () {
-                if (i % 2 == 0) {
-                    $('#link-box').css("display", "none")
-                } else {
-                    $('#link-box').css("display", "block")
-                }
-                i++;
-            })
-
-            $("#retouch-btn01").on('click', function() {
-                $('.response-text01').contents().unwrap().wrap('<input type="text" class="retouch-text01">')
-            })
-            $("#retouch-btn02").on('click', function() {
-                $('.response-text02').contents().unwrap().wrap('<input type="text" class="retouch-text01">')
-            })
-        });
-    </script>
+    <script src="../static/main.js"></script>
 </head>
 
 <body>
-
-<!-- header(표지, 링크 작성하기 버튼 누를 때 toggle) -->
 <div class="mypicture">
     <h1>링크 아카이브</h1>
     <button type="button" id="btn" class="btn btn-dark mybutton">링크 작성하기</button>
 </div>
-
-<!-- 작성 후 저장 버튼 누르면 저장 됨 -->
 <div id="link-box" class="link-text">
     <div class="filebox">
         <input class="upload-name" value="업로드 이미지 선택" disabled="disabled">
-
         <label for="ex_filename">업로드</label>
         <input type="file" id="ex_filename" class="upload-hidden">
     </div>
-<!-- title, link, content, writer 값을 가져 가면 됨 -->
     <input type="text" class="form-control submit-text" id="title" placeholder="제목">
     <input type="text" class="form-control submit-text" id="url" placeholder="링크">
-    <input type="text" class="form-control submit-text" id="content" placeholder="내용">
-    <input type="text" class="form-control submit-text" id="writer" placeholder="작성자">
-
-    <button class="save-btn btn-hover" id="save-btn">저장</button>
+    <input type="text" class="form-control submit-text" id="author" placeholder="작성자">
+    <input type="text" class="form-control submit-text" id="tag" placeholder="태그">
+    <button onclick="save()" type="button" class="save-btn btn-hover" id="save-btn">저장</button>
 </div>
-
-<!-- 밑에 있는 것들을 temp_html 하면 됨-->
-
 <div id="temp-box">
-
     <div class="response-box">
-        <div class="response-image"></div>
+        <div class="box1">
+            <div class="response-image"></div>
         <div>
-            <p class="response-text01">여기에 제목이 옵니다</p>
-            <p class="response-text01 response-link"><a href="https://www.notion.so/62bffe54694142509eb12522112dcba6">https://www.notion.so/62bffe54694142509eb12522112dcba6</a></p>
-            <p class="response-text01">여기에 내용이 옵니다. 내용이 길어지면 스크롤이 생깁니다.</p>
-            <p class="response-text01">여기에 작성자가 옵니다</p>
+            <p class="response-text">여기에 제목이 옵니다 id:1</p>
+            <p class="response-text"><a href="https://www.notion.so/62bffe54694142509eb12522112dcba6">https://www.notion.so/62bffe54694142509eb12522112dcba6</a>
+            </p>
+            <p class="response-text">여기에 내용이 옵니다. 내용이 길어지면 알아서 밑으로 늘어납니다.</p>
+            <p class="response-text">여기에 작성자가 옵니다</p>
         </div>
-
-        <div>
-            <button class="delete-btn btn-hover" id="delete-btn">삭제</button>
-            <button onclick="" class="retouch-btn btn-hover" id="retouch-btn01">수정</button>
+        <div class="btn-wrapper">
+            <button class="delete-btn btn-hover">삭제</button>
+            <button onclick="reTouchbtn(1)" class="retouch-btn btn-hover">수정</button>
         </div>
+        </div>
+        <div id="retouch_1"></div>
     </div>
-
     <div class="response-box">
-        <div class="response-image"></div>
+        <div class="box2">
+            <div class="response-image"></div>
         <div>
-            <p class="response-text02">여기에 제목이 옵니다</p>
-            <p class="response-text02 response-link"><a href="https://www.notion.so/62bffe54694142509eb12522112dcba6">https://www.notion.so/62bffe54694142509eb12522112dcba6</a></p>
-            <p class="response-text02">여기에 내용이 옵니다. 내용이 길어지면 스크롤이 생깁니다.</p>
-            <p class="response-text02">여기에 작성자가 옵니다</p>
+            <p class="response-text">여기에 제목이 옵니다 id:2</p>
+            <p class="response-text"><a href="https://www.notion.so/62bffe54694142509eb12522112dcba6">https://www.notion.so/62bffe54694142509eb12522112dcba6</a>
+            </p>
+            <p class="response-text">여기에 내용이 옵니다. 내용이 길어지면 알아서 밑으로 늘어납니다.</p>
+            <p class="response-text">여기에 작성자가 옵니다</p>
+        </div>
+        <div>
+            <button class="delete-btn btn-hover">삭제</button>
+            <button onclick="reTouchbtn(2)" class="retouch-btn btn-hover">수정</button>
+        </div>
         </div>
 
-        <div>
-            <button class="delete-btn btn-hover" id="delete-btn">삭제</button>
-            <button onclick="" class="retouch-btn btn-hover" id="retouch-btn02">수정</button>
-        </div>
+        <div id="retouch_2"></div>
     </div>
-
-
 </div>
-
 </body>
 
 </html>
