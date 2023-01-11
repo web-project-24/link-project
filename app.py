@@ -112,6 +112,26 @@ def save_file(image):
     except Exception as e:
         return e
 
+# 파일 업로드
+def save_file(image):
+    # 파일 확장자 분리
+    extension = image.filename.split('.')[-1]
+    # 파일 이름 형식
+    today = datetime.now()
+    mytime = today.strftime('%Y-%m-%d-%H-%M-%S')
+    filename = f'file-{mytime}'
+    file_fullname = f'{filename}.{extension}'
+
+    try:
+        # S3 - Upload a new file
+        bucket = os.getenv("AWS_BUCKET_NAME")
+        s3.put_object(Key=file_fullname, Bucket=bucket, Body=image)
+
+        path = os.getenv("AWS_DOMAIN")
+        url = f'{path}/{file_fullname}'
+
+        return url
+
 
 # 링크 삭제 delete
 @app.route("/api/link/<int:id>", methods=["DELETE"])
