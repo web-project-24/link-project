@@ -140,7 +140,13 @@
     background-size: cover;
     background-position: center;
 
+
+    margin-top: 10px;
+
     float: left;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .response-text {
