@@ -27,6 +27,7 @@ $(document).ready(function () {
         i++;
     })
 });
+
 // 전체리스트
 function show_list() {
     $.ajax({
@@ -71,6 +72,7 @@ function show_list() {
         }
     });
 }
+
 function save() {
     let title = $('#title').val()
     let url = $('#url').val()
@@ -104,7 +106,8 @@ function save() {
         }
     });
 }
-function reTouchbtn(idx){
+
+function reTouchbtn(idx) {
     $(`#retouch_${idx}`).append(`
             <div class="filebox">
                 <input class="upload-name" value="업로드 이미지 선택" disabled="disabled">
@@ -136,8 +139,31 @@ function reTouchbtn(idx){
 
 }
 
+
 //#btn toggle
 
-function cancel(idx){
+function cancel(idx) {
     $(`.box${idx}`).css('display', 'black');
+}
+
+//pop-up btn, close btn
+
+//$(document).ready(function() {
+//보여주기
+//    $('#show').on('click', function() {
+//        $(`#pop-up${idx}`).fadeIn(500);
+//    });
+//    //숨기기
+//    $('#close').on('click', function() {
+//        $('#pop-up01').fadeOut(500);
+//    });
+//})
+
+
+function show() {
+    $('#pop-up01').css('display', 'block');
+}
+
+function close() {
+    $('#pop-up01').css('display', 'none');
 }
