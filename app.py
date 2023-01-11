@@ -74,7 +74,13 @@ def link_put(id):
         author = request.form['author']
         # 파일 저장을 위한 부분
         image = request.files['image']
-        image_path = save_file(image)
+
+        # 수청 요청 받은 파일이 없으면, 기존 URL 그대로 저장
+        if image.filename != '':
+            new_image = save_file(image)
+        else:
+            pre_link = list(db.links.find({'id': id}, {'_id': False}))
+            new_image = pre_link[0]['image']
 
         new_doc = {
             'id': id,
@@ -82,7 +88,7 @@ def link_put(id):
             'url': url,
             'tag': tag,
             'author': author,
-            'image': image_path
+            'image': new_image
         }
         db.links.update_one({'id': int(id) }, {'$set': new_doc })
 
@@ -111,26 +117,6 @@ def save_file(image):
 
     except Exception as e:
         return e
-
-# 파일 업로드
-def save_file(image):
-    # 파일 확장자 분리
-    extension = image.filename.split('.')[-1]
-    # 파일 이름 형식
-    today = datetime.now()
-    mytime = today.strftime('%Y-%m-%d-%H-%M-%S')
-    filename = f'file-{mytime}'
-    file_fullname = f'{filename}.{extension}'
-
-    try:
-        # S3 - Upload a new file
-        bucket = os.getenv("AWS_BUCKET_NAME")
-        s3.put_object(Key=file_fullname, Bucket=bucket, Body=image)
-
-        path = os.getenv("AWS_DOMAIN")
-        url = f'{path}/{file_fullname}'
-
-        return url
 
 
 # 링크 삭제 delete
