@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
-
+from dotenv import load_dotenv
+import boto3, os
 from pymongo import MongoClient
 
 from datetime import datetime
@@ -9,6 +10,14 @@ db = client.dbsparta
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False # UTF-인코딩
+load_dotenv() # 환경변수 불러오기
+
+# AWS s3 설정
+s3 = boto3.client(
+    's3',
+    aws_access_key_id=os.getenv('AWS_ACCESS_KEY'),
+    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+)
 
 @app.route('/')
 def home():
@@ -88,13 +97,21 @@ def save_file(image):
     today = datetime.now()
     mytime = today.strftime('%Y-%m-%d-%H-%M-%S')
     filename = f'file-{mytime}'
-    save_to = f'static/img/{filename}.{extension}'
-    # 파일 로컬 static/img 디렉토리 저장
-    image.save(save_to)
-
     file_fullname = f'{filename}.{extension}'
 
-    return file_fullname
+    try:
+        # S3 - Upload a new file
+        bucket = os.getenv("AWS_BUCKET_NAME")
+        s3.put_object(Key=file_fullname, Bucket=bucket, Body=image)
+
+        path = os.getenv("AWS_DOMAIN")
+        url = f'{path}/{file_fullname}'
+
+        return url
+
+    except Exception as e:
+        return e
+
 
 # 링크 삭제 delete
 @app.route("/api/link/<int:id>", methods=["DELETE"])
