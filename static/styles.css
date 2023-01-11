@@ -136,12 +136,10 @@
     width: 160px;
     height: 213px;
     margin-top: 10px;
-
-    background-image: url('https://cdn.topstarnews.net/news/photo/201807/456143_108614_510.jpg');
-    background-size: cover;
-    background-position: center;
-
     float: left;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .response-text {
