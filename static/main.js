@@ -92,6 +92,7 @@ function save() {
     let url = $('#url').val()
     let tag = $('#tag').val()
     let author = $('#author').val()
+    let filename = $('.upload-name').val();
     let image = $('#ex_filename')[0].files[0] // id file의 0번째 태그의 files 중 0 번째 파일
     console.log("image " ,image);
     let form_data = new FormData()
@@ -99,7 +100,7 @@ function save() {
     form_data.append("title", title)
     form_data.append("url", url)
     form_data.append("tag", tag)
-    form_data.append("image", image)
+    form_data.append("image", image, filename)
     form_data.append("author", author)
 
     for (let value of form_data.values()) {
@@ -122,9 +123,10 @@ function save() {
 }
 
 //수정클릭
-function reTouchbtn(idx){
-    $(`.box${idx}`).css("display", "none")
-    $(`#retouch_${idx}`).css("display", "block")
+function reTouchbtn(id){
+    $(`.box${id}`).css("display", "none")
+    $(`#retouch_${id}`).css("display", "block")
+
 }
 
 //수정클릭시 취소
@@ -148,7 +150,11 @@ function saveRetouch(id) {
     let author_modify = $(`.author_retouch${id}`).val()
     let url_modify = $(`.url_retouch${id}`).val()
     let tag_modify = $(`.tag_retouch${id}`).val()
-    let image_modify = $(`#ex_filenames${id}`)[0].files[0]
+    let image_modify = $(`#ex_filenames${id}`)[0].files[0];
+    console.log(typeof image_modify === 'undefined');
+    if (typeof image_modify === 'undefined') {
+        image_modify = $(`.upload-name${id}`).val();
+    }
     console.log("image_modify : ",image_modify);
 
     let form_data = new FormData()
@@ -171,7 +177,7 @@ function saveRetouch(id) {
         contentType: false,
         processData: false,
         success: function (response) {
-            alert(response)
+            alert(response["msg"])
             window.location.reload()
         }
     });
