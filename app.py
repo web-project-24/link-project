@@ -66,6 +66,12 @@ def create_index(name):
     )
     return index_doc['sequence_value']
 
+# 링크 특정 조회
+@app.route("/api/link/<int:id>", methods=["GET"])
+def link_one_get(id):
+    link = list(db.links.find({'id': id }, {'_id': False}))
+
+    return jsonify({'link': link})
 
 # 링크 수정 update
 @app.route("/api/link/<int:id>", methods=["PUT"])
@@ -82,10 +88,13 @@ def link_put(id):
         tag = request.form['tag']
         author = request.form['author']
         # 파일 저장을 위한 부분
-        image = request.files['image']
+        if request.files['image'] is None:
+            image = request.form['image']
+        else:
+            image = request.files['image']
 
         # 수청 요청 받은 파일이 없으면, 기존 URL 그대로 저장
-        if image.filename != '':
+        if isinstance(image, str) is False:
             new_image = image.filename
             new_path = save_file(image)
         else:
