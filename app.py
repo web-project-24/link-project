@@ -1,14 +1,24 @@
 from flask import Flask, render_template, request, jsonify
-
+from dotenv import load_dotenv
+import boto3, os
 from pymongo import MongoClient
 
 from datetime import datetime
-# DB 환경설정
-client = MongoClient('mongodb+srv://team24:2424@cluster0.ypbmrjf.mongodb.net/Cluster0?retryWrites=true&w=majority')
-db = client.dbsparta
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False # UTF-인코딩
+load_dotenv() # 환경변수 불러오기
+
+# DB 환경설정
+client = MongoClient(os.getenv('DB_URL'))
+db = client.dbsparta
+
+# AWS s3 설정
+s3 = boto3.client(
+    's3',
+    aws_access_key_id=os.getenv('AWS_ACCESS_KEY'),
+    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+)
 
 @app.route('/')
 def home():
@@ -65,7 +75,13 @@ def link_put(id):
         author = request.form['author']
         # 파일 저장을 위한 부분
         image = request.files['image']
-        image_path = save_file(image)
+
+        # 수청 요청 받은 파일이 없으면, 기존 URL 그대로 저장
+        if image.filename != '':
+            new_image = save_file(image)
+        else:
+            pre_link = list(db.links.find({'id': id}, {'_id': False}))
+            new_image = pre_link[0]['image']
 
         new_doc = {
             'id': id,
@@ -73,7 +89,7 @@ def link_put(id):
             'url': url,
             'tag': tag,
             'author': author,
-            'image': image_path
+            'image': new_image
         }
         db.links.update_one({'id': int(id) }, {'$set': new_doc })
 
@@ -88,13 +104,21 @@ def save_file(image):
     today = datetime.now()
     mytime = today.strftime('%Y-%m-%d-%H-%M-%S')
     filename = f'file-{mytime}'
-    save_to = f'static/img/{filename}.{extension}'
-    # 파일 로컬 static/img 디렉토리 저장
-    image.save(save_to)
-
     file_fullname = f'{filename}.{extension}'
 
-    return file_fullname
+    try:
+        # S3 - Upload a new file
+        bucket = os.getenv("AWS_BUCKET_NAME")
+        s3.put_object(Key=file_fullname, Bucket=bucket, Body=image)
+
+        path = os.getenv("AWS_DOMAIN")
+        url = f'{path}/{file_fullname}'
+
+        return url
+
+    except Exception as e:
+        return e
+
 
 # 링크 삭제 delete
 @app.route("/api/link/<int:id>", methods=["DELETE"])
