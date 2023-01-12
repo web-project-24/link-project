@@ -4,13 +4,14 @@ import boto3, os
 from pymongo import MongoClient
 
 from datetime import datetime
-# DB 환경설정
-client = MongoClient('mongodb+srv://team24:2424@cluster0.ypbmrjf.mongodb.net/Cluster0?retryWrites=true&w=majority')
-db = client.dbsparta
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False # UTF-인코딩
 load_dotenv() # 환경변수 불러오기
+
+# DB 환경설정
+client = MongoClient(os.getenv('DB_URL'))
+db = client.dbsparta
 
 # AWS s3 설정
 s3 = boto3.client(
