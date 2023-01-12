@@ -124,14 +124,35 @@ def save_file(image):
 @app.route("/api/link/<int:id>", methods=["DELETE"])
 def link_delete(id):
     # id가 유효한지 확인
-    exist_id = db.links.find({'id': id}, {'_id': False})
+    exist_id = list(db.links.find({'id': id}, {'_id': False}))
     # 유효하지 않는 경우
     if len(list(exist_id)) == 0:
         return jsonify({'msg': '존재하지 않은 링크 ID입니다. 다시 확인해주세요.'}), 404
     # id가 유효한 경우
+    # s3 파일 삭제
+    pre_image = exist_id[0]['image']
+    delete_file(pre_image)
+    # DB 삭제
     db.links.delete_one({'id': id})
 
     return jsonify({'msg': '링크 삭제 완료!'}), 200
+
+# S3 삭제
+def delete_file(image_path):
+
+    bucket = os.getenv("AWS_BUCKET_NAME")
+    file_key = image_path.split('/')[-1]
+
+    try:
+        response = s3.delete_object(
+            Bucket=bucket,
+            Key=file_key,
+        )
+        print(response)
+        return
+
+    except Exception as e:
+        return e
 
 
 if __name__ == '__main__':
