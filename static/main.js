@@ -44,7 +44,6 @@ function show_list() {
                 let title = rows[l]['title']
                 let url = rows[l]['url']
                 let author = rows[l]['author']
-
                 // if(done == 0 ){
                 let temp_html = ``;
                  temp_html=`
@@ -54,7 +53,7 @@ function show_list() {
                                 <image src="${image}" alt="${title}" style="width: 100%" />
                             </div>
                         <div>
-                            <p class="response-text">${title} id:${id}</p>
+                            <p class="response-text">${title}</p>
                             <p class="response-text">
                                 <a href="${url}">
                                 ${url}</a>
@@ -63,7 +62,7 @@ function show_list() {
                             <p class="response-text">${author}</p>
                         </div>
                         <div class="btn-wrapper">
-                            <button class="delete-btn btn-hover">삭제</button>
+                            <button onclick="deleteBtn( ${id} )" class="delete-btn btn-hover">삭제</button>
                             <button onclick="reTouchbtn( ${id} )" class="retouch-btn btn-hover">수정</button>
                         </div>
                         </div>
@@ -107,19 +106,19 @@ function save() {
         console.log(value);
     }
 
-    // $.ajax({
-    //     type: "POST",
-    //     url: "/api/link",
-    //     data: form_data,
-    //     // 파일을 보내는데 필요한 기본 세팅이 되어있지 않을 수 있기 떄문에 false로 설정
-    //     cache: false,
-    //     contentType: false,
-    //     processData: false,
-    //     success: function (response) {
-    //         alert(response)
-    //         window.location.reload()
-    //     }
-    // });
+    $.ajax({
+        type: "POST",
+        url: "/api/link",
+        data: form_data,
+        // 파일을 보내는데 필요한 기본 세팅이 되어있지 않을 수 있기 떄문에 false로 설정
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            alert(response["msg"])
+            window.location.reload()
+        }
+    });
 }
 
 //수정클릭
@@ -176,4 +175,22 @@ function saveRetouch(id) {
             window.location.reload()
         }
     });
+}
+function deleteBtn(id){
+    if(confirm("정말로 삭제하시겠습니까?")) {
+        $.ajax({
+            type: "DELETE",
+            url: `/api/link/${id}`,
+            data: id,
+            // 파일을 보내는데 필요한 기본 세팅이 되어있지 않을 수 있기 떄문에 false로 설정
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                alert(response["msg"])
+                window.location.reload()
+            }
+        });
+    }
+    return;
 }
