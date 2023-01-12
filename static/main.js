@@ -28,7 +28,7 @@ $(document).ready(function () {
         i++;
     })
 });
-// 전체리스트
+// 전체리스트 뿌리기
 function show_list() {
     $.ajax({
         type: "GET",
@@ -70,16 +70,14 @@ function show_list() {
                         <div id="retouch_${id}" style="display: none">
                             <div class="filebox">
                                 <input class="upload-name${id}" value="업로드 이미지 선택" disabled="disabled">
-<!--                                <label for="ex_filename">업로드</label>-->
-<!--                                <input type="file" class="upload-hidden ex_filename">-->
                                 <label for="ex_filenames${id}">업로드</label>
                                 <input type="file" id="ex_filenames${id}" style="position: inherit" onchange="fileUpload(this,${id})">
                             </div>
-                            <input type="text" class="form-control submit-text title_retouch"  placeholder="제목" value="${title}">
-                            <input type="text" class="form-control submit-text url_retouch"  placeholder="링크" value="${url}">
-                            <input type="text" class="form-control submit-text author_retouch" placeholder="작성자" value="${author}">
-                            <input type="text" class="form-control submit-text tag_retouch" placeholder="태그" value="${tag}">
-                            <button onclick="save()" type="button" class="save-btn btn-hover save_btn_retouch">저장</button>
+                            <input type="text" class="form-control submit-text title_retouch${id}"  placeholder="제목" value="${title}">
+                            <input type="text" class="form-control submit-text url_retouch${id}"  placeholder="링크" value="${url}">
+                            <input type="text" class="form-control submit-text author_retouch${id}" placeholder="작성자" value="${author}">
+                            <input type="text" class="form-control submit-text tag_retouch${id}" placeholder="태그" value="${tag}">
+                            <button onclick="saveRetouch(${id})" type="button" class="save-btn btn-hover save_btn_retouch save_btn_retouch${id}">저장</button>
                             <button onclick="cancel( ${id} )" type="button" class="save-btn btn-hover save_btn_retouch">취소</button>
                         </div>
                     </div>
@@ -89,13 +87,14 @@ function show_list() {
         }
     });
 }
+// 링크작성하기 저장기능
 function save() {
     let title = $('#title').val()
     let url = $('#url').val()
     let tag = $('#tag').val()
     let author = $('#author').val()
     let image = $('#ex_filename')[0].files[0] // id file의 0번째 태그의 files 중 0 번째 파일
-
+    console.log("image " ,image);
     let form_data = new FormData()
 
     form_data.append("title", title)
@@ -108,9 +107,65 @@ function save() {
         console.log(value);
     }
 
+    // $.ajax({
+    //     type: "POST",
+    //     url: "/api/link",
+    //     data: form_data,
+    //     // 파일을 보내는데 필요한 기본 세팅이 되어있지 않을 수 있기 떄문에 false로 설정
+    //     cache: false,
+    //     contentType: false,
+    //     processData: false,
+    //     success: function (response) {
+    //         alert(response)
+    //         window.location.reload()
+    //     }
+    // });
+}
+
+//수정클릭
+function reTouchbtn(idx){
+    $(`.box${idx}`).css("display", "none")
+    $(`#retouch_${idx}`).css("display", "block")
+}
+
+//수정클릭시 취소
+function cancel(idx){
+    $(`.box${idx}`).css("display", "block")
+    $(`#retouch_${idx}`).css("display", "none")
+}
+
+// 수정에 필요한 파일업로드기능
+function fileUpload(fis,id) {
+    if (window.FileReader) {
+        var str = fis.value;
+        let filename= fis.files[0].name;
+        $(`.upload-name${id}`).val(filename);
+        console.log("fis.files[0] : ",fis.files[0]);
+    }
+}
+//수정시 저장기능
+function saveRetouch(id) {
+    let title_modify = $(`.title_retouch${id}`).val()
+    let author_modify = $(`.author_retouch${id}`).val()
+    let url_modify = $(`.url_retouch${id}`).val()
+    let tag_modify = $(`.tag_retouch${id}`).val()
+    let image_modify = $(`#ex_filenames${id}`)[0].files[0]
+    console.log("image_modify : ",image_modify);
+
+    let form_data = new FormData()
+    form_data.append("title", title_modify)
+    form_data.append("url", url_modify)
+    form_data.append("tag", tag_modify)
+    form_data.append("image", image_modify)
+    form_data.append("author", author_modify)
+
+    for (let value of form_data.values()) {
+        console.log(value);
+    }
+
     $.ajax({
-        type: "POST",
-        url: "/api/link",
+        type: "PUT",
+        url: `/api/link/${id}`,
         data: form_data,
         // 파일을 보내는데 필요한 기본 세팅이 되어있지 않을 수 있기 떄문에 false로 설정
         cache: false,
@@ -121,23 +176,4 @@ function save() {
             window.location.reload()
         }
     });
-}
-function reTouchbtn(idx){
-    $(`.box${idx}`).css("display", "none")
-    $(`#retouch_${idx}`).css("display", "block")
-}
-
-//#btn toggle
-
-function cancel(idx){
-    $(`.box${idx}`).css("display", "block")
-    $(`#retouch_${idx}`).css("display", "none")
-}
-
-function fileUpload(fis,id) {
-    if (window.FileReader) {
-        var str = fis.value;
-        let filename= fis.files[0].name;
-        $(`.upload-name${id}`).val(filename);
-    }
 }
