@@ -40,6 +40,8 @@ def link_post():
     author = request.form['author']
     # 파일 저장을 위한 부분
     image = request.files['image']
+    name, extension = image.filename.split('.')
+    filename = f'{name}.{extension}'
     image_path = save_file(image)
 
     doc = {
@@ -48,7 +50,8 @@ def link_post():
         'url': url,
         'tag': tag,
         'author': author,
-        'image': image_path
+        'image': filename,
+        'path': image_path
     }
     db.links.insert_one(doc)
 
@@ -83,9 +86,11 @@ def link_put(id):
 
         # 수청 요청 받은 파일이 없으면, 기존 URL 그대로 저장
         if image.filename != '':
-            new_image = save_file(image)
+            new_image = image.filename
+            new_path = save_file(image)
         else:
             pre_link = list(db.links.find({'id': id}, {'_id': False}))
+            new_path = pre_link[0]['path']
             new_image = pre_link[0]['image']
 
         new_doc = {
@@ -94,7 +99,8 @@ def link_put(id):
             'url': url,
             'tag': tag,
             'author': author,
-            'image': new_image
+            'image': new_image,
+            'path': new_path
         }
         db.links.update_one({'id': int(id) }, {'$set': new_doc })
 
@@ -136,6 +142,7 @@ def link_delete(id):
     # id가 유효한 경우
     # s3 파일 삭제
     pre_image = exist_id[0]['image']
+    print(pre_image)
     delete_file(pre_image)
     # DB 삭제
     db.links.delete_one({'id': id})
@@ -146,14 +153,13 @@ def link_delete(id):
 def delete_file(image_path):
 
     bucket = os.getenv("AWS_BUCKET_NAME")
-    file_key = image_path.split('/')[-1]
+    # file_key = image_path.split('/')[-1]
 
     try:
         response = s3.delete_object(
             Bucket=bucket,
-            Key=file_key,
+            Key=image_path,
         )
-        print(response)
         return
 
     except Exception as e:
