@@ -5,12 +5,13 @@ $(document).ready(function () {
     var fileTarget = $('.filebox .upload-hidden');
 
     fileTarget.on('change', function () {  // 값이 변경되면
+
         if (window.FileReader) {  // modern browser
+            console.log(   $(this) )
             var filename = $(this)[0].files[0].name;
         } else {  // old IE
             var filename = $(this).val().split('/').pop().split('\\').pop();  // 파일명만 추출
         }
-
         // 추출한 파일명 삽입
         $(this).siblings('.upload-name').val(filename);
     });
@@ -34,10 +35,8 @@ function show_list() {
         url: "/api/link",
         data: {},
         success: function (response) {
-            console.log(response['linklist']);
             let rows = response['linklist']
             for(let l=0; l < rows.length;l++){
-                console.log(rows[l]);
                 let sendMsg = rows[l];
                 let id = rows[l]['id'];
                 let image = rows[l]['image'];
@@ -70,9 +69,11 @@ function show_list() {
                         </div>
                         <div id="retouch_${id}" style="display: none">
                             <div class="filebox">
-                                <input class="upload-name" value="업로드 이미지 선택" disabled="disabled">
-                                <label for="ex_filename">업로드</label>
-                                <input type="file" class="upload-hidden ex_filename_retouch">
+                                <input class="upload-name${id}" value="업로드 이미지 선택" disabled="disabled">
+<!--                                <label for="ex_filename">업로드</label>-->
+<!--                                <input type="file" class="upload-hidden ex_filename">-->
+                                <label for="ex_filenames${id}">업로드</label>
+                                <input type="file" id="ex_filenames${id}" style="position: inherit" onchange="fileUpload(this,${id})">
                             </div>
                             <input type="text" class="form-control submit-text title_retouch"  placeholder="제목" value="${title}">
                             <input type="text" class="form-control submit-text url_retouch"  placeholder="링크" value="${url}">
@@ -83,27 +84,6 @@ function show_list() {
                         </div>
                     </div>
                 `
-                // temp_html=`
-                //     <li>
-                //         <h2>✅ ${bucket}</h2>
-                //         <button onclick="done_bucket(${num})" type="button" class="btn btn-outline-primary">완료!</button>
-                //     </li>
-                //    `
-                //     temp_html=`
-                //     <li>
-                //         <h2>✅ ${bucket}</h2>
-                //         <button onclick="done_bucket(${num})" type="button" class="btn btn-outline-primary">완료!</button>
-                //     </li>
-                //     `
-                // }else {
-                //     temp_html=`
-                //     <li>
-                //         <h2 class="done">✅ ${bucket}</h2>
-                //     </li>
-                //     `
-                //
-                // }
-
                 $('#temp-box').append(temp_html);
             }
         }
@@ -145,27 +125,6 @@ function save() {
 function reTouchbtn(idx){
     $(`.box${idx}`).css("display", "none")
     $(`#retouch_${idx}`).css("display", "block")
-    // let k = 0;
-    // if (k % 2 == 0) {
-    //         $(`.box${idx}`).css("display", "none")
-    //     } else {
-    //         $(`.box${idx}`).css("display", "block")
-    //     }
-    //     k++;
-
-    var fileTargets = $(`.retouch_${idx}.filebox .upload-hidden`);
-
-    fileTargets.on('change', function () {  // 값이 변경되면
-        if (window.FileReader) {  // modern browser
-            var filename = $(this)[0].files[0].name;
-        } else {  // old IE
-            var filename = $(this).val().split('/').pop().split('\\').pop();  // 파일명만 추출
-        }
-
-        // 추출한 파일명 삽입
-        $(this).siblings('.upload-name').val(filename);
-    });
-
 }
 
 //#btn toggle
@@ -173,4 +132,12 @@ function reTouchbtn(idx){
 function cancel(idx){
     $(`.box${idx}`).css("display", "block")
     $(`#retouch_${idx}`).css("display", "none")
+}
+
+function fileUpload(fis,id) {
+    if (window.FileReader) {
+        var str = fis.value;
+        let filename= fis.files[0].name;
+        $(`.upload-name${id}`).val(filename);
+    }
 }
