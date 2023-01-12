@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 import boto3, os
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 
 from datetime import datetime
 
@@ -34,10 +34,6 @@ def link_list_get():
 # 링크 생성 create
 @app.route("/api/link", methods=["POST"])
 def link_post():
-    # id 값 만들기
-    all_list = list(db.links.find({}, {'_id': False}))
-    id = len(all_list) + 1
-
     title = request.form['title']
     url = request.form['url']
     tag = request.form['tag']
@@ -47,7 +43,7 @@ def link_post():
     image_path = save_file(image)
 
     doc = {
-        'id': id,
+        'id': create_index('id'),
         'title': title,
         'url': url,
         'tag': tag,
@@ -57,6 +53,15 @@ def link_post():
     db.links.insert_one(doc)
 
     return jsonify({'msg': '링크 등록 완료!'}), 201
+
+# 인덱스 생성
+def create_index(name):
+    index_doc = db.counters.find_one_and_update(
+        {'_id': name },
+        {'$inc': {'sequence_value': 1}},
+        return_document=ReturnDocument.AFTER
+    )
+    return index_doc['sequence_value']
 
 
 # 링크 수정 update
