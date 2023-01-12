@@ -44,22 +44,24 @@ function show_list() {
                 let title = rows[l]['title']
                 let url = rows[l]['url']
                 let author = rows[l]['author']
+                let path = rows[l]['path']
                 // if(done == 0 ){
                 let temp_html = ``;
                  temp_html=`
                     <div class="response-box">
                         <div class="box${id}">
                             <div class="response-image">
-                                <image src="${image}" alt="${title}" style="width: 100%" />
+                                <image src="${path}" alt="${title}" style="width: 100%" />
                             </div>
                         <div>
-                            <p class="response-text">${title}</p>
+                            <p class="response-text"><span class="surveInput">이름</span> ${title}</p>
                             <p class="response-text">
+                                <span class="surveInput">링크</span>
                                 <a href="${url}">
                                 ${url}</a>
                             </p>
-                            <p class="response-text">${tag}</p>
-                            <p class="response-text">${author}</p>
+                            <p class="response-text"><span class="surveInput">작성자 </span>${author}</p>
+                            <p class="response-text"><span class="surveInput">태그 </span>${tag}</p>
                         </div>
                         <div class="btn-wrapper">
                             <button onclick="deleteBtn( ${id} )" class="delete-btn btn-hover">삭제</button>
@@ -68,7 +70,7 @@ function show_list() {
                         </div>
                         <div id="retouch_${id}" style="display: none">
                             <div class="filebox">
-                                <input class="upload-name${id}" value="업로드 이미지 선택" disabled="disabled">
+                                <input class="upload-name${id}" value="${image}" disabled="disabled">
                                 <label for="ex_filenames${id}">업로드</label>
                                 <input type="file" id="ex_filenames${id}" style="position: inherit" onchange="fileUpload(this,${id})">
                             </div>
@@ -137,6 +139,9 @@ function cancel(idx){
 function fileUpload(fis,id) {
     if (window.FileReader) {
         var str = fis.value;
+        console.log("fis : ",fis);
+        console.log("fis.value : ",fis.value);
+        console.log("fis.value : ",fis.files[0]);
         let filename= fis.files[0].name;
         $(`.upload-name${id}`).val(filename);
         console.log("fis.files[0] : ",fis.files[0]);
